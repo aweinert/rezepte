@@ -1,0 +1,79 @@
+% According to ISO, holes should be at a distance of 1.2cm from the border. Hence, an inner border of 2*1.2cm
+\usepackage[margin=1.6cm,includefoot,inner=2.4cm]{geometry}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{helvet}
+\usepackage[cm]{sfmath}
+\renewcommand{\familydefault}{\sfdefault}
+
+\usepackage{enumitem}
+
+\usepackage{graphicx}
+
+\usepackage{eso-pic}
+\usepackage{tikz}
+
+% Model the background
+\AddToShipoutPictureBG{ \ifthispageodd { \put(-6,0){
+\begin{tikzpicture}
+	\node[minimum height=\paperheight,minimum width = 8.1cm,anchor=west,fill=black!20] at (0,0) {};
+\end{tikzpicture}
+} } {
+\begin{tikzpicture}
+	\node at (0,0) {};
+	\node[minimum height=\paperheight,minimum width = 8.1cm,anchor=west,fill=black!20] at (13.1cm,0) {};
+\end{tikzpicture}
+} }
+
+\newcounter{recipe}[section]
+
+% Usage: \begin{recipe}{Leckerer Kuchen}{\begin{ingredientcat}...\end{ingredientcat}}{\step{}...\hints{}}
+\newcommand{\recipe}[4][]
+	{ \begin{minipage}{\textwidth}
+		{\noindent\huge \textbf{#2}} \hfill \stepcounter{recipe}\therecipe \\ \rule{\textwidth}{1pt}
+		\def\temp{#1}\ifx\temp\empty \\[\bigskipamount] \else \begin{flushright} \vspace{-\medskipamount} \small Ergibt #1 \end{flushright} \fi
+		\ifthispageodd {
+			\begin{minipage}[t]{.3\textwidth} #3 \end{minipage} \hspace{.03\textwidth}
+			\begin{minipage}[t]{.65\textwidth}
+				 \noindent {\large \textbf{Anleitung}} \\[-\medskipamount] \rule{\textwidth}{.5pt} 
+				\begin{enumerate} #4 \end{enumerate}
+			\end{minipage} \\[\bigskipamount]
+		} {
+			\begin{minipage}[t]{.65\textwidth}
+				\noindent {\large \textbf{Anleitung}} \\[-\medskipamount] \rule{\textwidth}{.5pt} 
+				\begin{enumerate} #4 \end{enumerate}
+			\end{minipage}
+			\hspace{.03\textwidth}
+			\begin{minipage}[t]{.3\textwidth} #3 \end{minipage} \\[\bigskipamount]
+		}
+	\end{minipage} }
+	
+	
+% Usage: \yields{1 Kuchen}
+% Must be used directly after \begin{recipe}{...}
+\newcommand{\yields}[1]
+	{\begin{flushright} 
+		\vspace{-\medskipamount} \small Ergibt #1
+	\end{flushright} }
+
+% Usage: \begin{category}{Teig} \ingredient... \end{category}
+\newenvironment{category}[1][]
+	{ \def\temp{#1}\ifx\temp\empty \else {\large \textbf{#1}} \fi \begin{itemize}[noitemsep] }
+ 	{ \end{itemize} }
+	
+% Usage: \hints{Der Ofen wird angemacht, indem man den Pröngel dreht}
+\newcommand{\hints}
+	{ \end{enumerate} \noindent {\large \textbf{Hinweise}} \\[-\medskipamount] \rule{\textwidth}{.5pt} \begin{enumerate} \item[]
+	}
+	
+% Usage: \step{Backen}{Backofen öffnen und Zeug reinschieben}
+\newcommand{\step}[2][] { \item \def\temp{#1}\ifx\temp\empty \else \textbf{#1} \fi #2 }
+
+% Usage: \ingredient{200}{g}{Zucker} 	
+\newcommand{\ingredient}[3]{%
+	\item%
+	\def\temp{#1}\ifx\temp\empty \else $#1$ \fi 
+	\def\temp{#2}\ifx\temp\empty \else #2 \fi
+	#3
+}
