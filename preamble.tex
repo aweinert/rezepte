@@ -1,5 +1,5 @@
 % According to ISO, holes should be at a distance of 1.2cm from the border. Hence, an inner border of 2*1.2cm
-\usepackage[margin=1.6cm,includefoot,inner=2.4cm]{geometry}
+\usepackage[margin=1.6cm,includefoot,inner=2.4cm,top=3cm]{geometry}
 
 \usepackage[utf8]{inputenc}
 
@@ -14,16 +14,39 @@
 \usepackage{eso-pic}
 \usepackage{tikz}
 
+\newcommand{\bgcolor}{black!20}
+\newcommand{\indexbgcolor}{black}
+\newcommand{\indexfgcolor}{white}
+\newcommand{\indexletter}{ }
+
+% Usage: \IfEmpty{\expr}{then}{else}
+\newcommand{\IfEmpty}[3]{
+	\def\temp{#1}\ifx\temp\empty #2 \else #3 \fi
+}
+
 % Model the background
-\AddToShipoutPictureBG{ \ifthispageodd { \put(-6,0){
-\begin{tikzpicture}
-	\node[minimum height=\paperheight,minimum width = 8.1cm,anchor=west,fill=black!20] at (0,0) {};
-\end{tikzpicture}
-} } {
-\begin{tikzpicture}
-	\node at (0,0) {};
-	\node[minimum height=\paperheight,minimum width = 8.1cm,anchor=west,fill=black!20] at (13.1cm,0) {};
-\end{tikzpicture}
+\AddToShipoutPictureBG{ \ifthispageodd { 
+	\put(-6,0){
+		\begin{tikzpicture}
+			\node[minimum height=\paperheight,minimum width = 8.1cm,anchor=west,fill=\bgcolor] at (0,0) {};
+		\end{tikzpicture}
+	}
+	\put(-6,800){
+		\begin{tikzpicture}
+			\node[minimum width=4cm,fill=\indexbgcolor,text width=3.5cm,align=right,minimum height=.8cm] at (0,0) {\Huge \textcolor{\indexfgcolor}{\textbf \indexletter}};
+		\end{tikzpicture}
+	}
+} {
+	\put(375,0) {
+		\begin{tikzpicture}
+			\node[minimum height=\paperheight,minimum width = 8.1cm,anchor=west,fill=\bgcolor] at (0,0) {};
+		\end{tikzpicture}
+	}
+	\put(475,800){
+		\begin{tikzpicture}
+			\node[minimum width=4cm,fill=\indexbgcolor,text width=3.5cm,align=left,minimum height=.8cm] at (0,0) {\Huge \textcolor{\indexfgcolor}{\textbf \indexletter}};
+		\end{tikzpicture}
+	}
 } }
 
 \newcounter{recipe}[section]
@@ -32,7 +55,11 @@
 \newcommand{\recipe}[4][]
 	{ \begin{minipage}{\textwidth}
 		{\noindent\huge \textbf{#2}} \hfill \stepcounter{recipe}\therecipe \\ \rule{\textwidth}{1pt}
-		\def\temp{#1}\ifx\temp\empty \\[\bigskipamount] \else \begin{flushright} \vspace{-\medskipamount} \small Ergibt #1 \end{flushright} \fi
+		\IfEmpty{#1}{
+			\\[\bigskipamount]%
+		} {%
+			\begin{flushright} \vspace{-\medskipamount} \small Ergibt #1 \end{flushright}%
+		}%
 		\ifthispageodd {
 			\begin{minipage}[t]{.3\textwidth} #3 \end{minipage} \hspace{.03\textwidth}
 			\begin{minipage}[t]{.65\textwidth}
@@ -48,18 +75,11 @@
 			\begin{minipage}[t]{.3\textwidth} #3 \end{minipage} \\[\bigskipamount]
 		}
 	\end{minipage} }
-	
-	
-% Usage: \yields{1 Kuchen}
-% Must be used directly after \begin{recipe}{...}
-\newcommand{\yields}[1]
-	{\begin{flushright} 
-		\vspace{-\medskipamount} \small Ergibt #1
-	\end{flushright} }
 
 % Usage: \begin{category}{Teig} \ingredient... \end{category}
 \newenvironment{category}[1][]
-	{ \def\temp{#1}\ifx\temp\empty \else {\large \textbf{#1}} \fi \begin{itemize}[noitemsep] }
+	{ \IfEmpty{#1}{}{{\large \textbf{#1}}}%
+		\begin{itemize}[noitemsep] }
  	{ \end{itemize} }
 	
 % Usage: \hints{Der Ofen wird angemacht, indem man den Pröngel dreht}
@@ -68,12 +88,12 @@
 	}
 	
 % Usage: \step{Backen}{Backofen öffnen und Zeug reinschieben}
-\newcommand{\step}[2][] { \item \def\temp{#1}\ifx\temp\empty \else \textbf{#1} \fi #2 }
+\newcommand{\step}[2][] { \item \IfEmpty{#1}{}{\textbf{#1}} #2 }
 
 % Usage: \ingredient{200}{g}{Zucker} 	
 \newcommand{\ingredient}[3]{%
 	\item%
-	\def\temp{#1}\ifx\temp\empty \else $#1$ \fi 
-	\def\temp{#2}\ifx\temp\empty \else #2 \fi
+	\IfEmpty{#1}{}{$#1$}
+	\IfEmpty{#2}{}{#2}
 	#3
 }
